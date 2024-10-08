@@ -10,25 +10,16 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import React, { useState, useEffect , useCallback} from 'react'
 // project import
 import MainCard from 'components/MainCard';
-import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
-import MonthlyBarChart from './MonthlyBarChart';
-import ReportAreaChart from './ReportAreaChart';
-import UniqueVisitorCard from './UniqueVisitorCard';
-import SaleReportCard from './SaleReportCard';
 import OrdersTable from './OrdersTable';
 import NOData from '../../assets/images/users/nodata.jpg'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 // assets
-import GiftOutlined from '@ant-design/icons/GiftOutlined';
-import MessageOutlined from '@ant-design/icons/MessageOutlined';
-import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
