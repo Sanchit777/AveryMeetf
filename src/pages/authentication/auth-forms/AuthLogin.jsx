@@ -155,9 +155,9 @@ export default function AuthLogin({ isDemo = false }) {
                     }
                     label={<Typography variant="h6">Keep me signed in</Typography>}
                   /> */}
-                  <Link variant="h6" component={RouterLink} color="text.primary">
+                  {/* <Link variant="h6" component={RouterLink} color="text.primary">
                     Forgot Password?
-                  </Link>
+                  </Link> */}
                 </Stack>
               </Grid>
               {errors.submit && (
