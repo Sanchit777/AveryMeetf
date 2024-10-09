@@ -15,6 +15,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ComponentTypography() {
   const fileInputRef = useRef(null);
@@ -23,27 +24,25 @@ export default function ComponentTypography() {
   const [summary, setSummary] = useState(''); // State to hold summary
   const [meetingType, setMeetingType] = useState('meeting'); // State for meeting type
   const [uploads, setUploads] = useState([]); // State to store uploads data
-  const userId = localStorage.getItem("id");
-  const [loading, setLoading] = useState(true);
+  const userId = localStorage.getItem('id');
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-const [selectedTranscription, setSelectedTranscription] = useState('');
-const [selectedSummary, setSelectedSummary] = useState('');
+  const [selectedTranscription, setSelectedTranscription] = useState('');
+  const [selectedSummary, setSelectedSummary] = useState('');
 
   const handleFileUploadClick = () => {
     fileInputRef.current.click();
   };
 
+  const handleOpenModal = (transcription, summary) => {
+    setSelectedTranscription(transcription);
+    setSelectedSummary(summary);
+    setOpen(true);
+  };
 
-
-const handleOpenModal = (transcription, summary) => {
-  setSelectedTranscription(transcription);
-  setSelectedSummary(summary);
-  setOpen(true);
-};
-
-const handleCloseModal = () => {
-  setOpen(false);
-};
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -66,24 +65,27 @@ const handleCloseModal = () => {
       formData.append('user_id', userId);
       // Append meeting type to form data
       formData.append('meeting_type', meetingType);
-
+      setLoading(true);
       try {
         // Update UI to show uploading status
         setUploadStatus('Uploading...');
+        
 
         // Make API request to localhost:5000/transcribe
         const response = await axios.post('https://averymeet.onrender.com/transcribe', formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+            'Content-Type': 'multipart/form-data'
+          }
         });
 
         // Handle the response
         setUploadStatus('File uploaded successfully!');
-        setSelectedTranscription(response.data.transcription); 
-        setSelectedSummary(response.data.summary); 
+        setSelectedTranscription(response.data.transcription);
+        setSelectedSummary(response.data.summary);
         setOpen(true);
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         console.error('Error uploading file:', error);
         setUploadStatus('An error occurred while uploading the file.');
       }
@@ -97,7 +99,7 @@ const handleCloseModal = () => {
 
       try {
         const response = await axios.get('https://averymeet.onrender.com/uploads', {
-          params: { user_id: userId },
+          params: { user_id: userId }
         });
         console.log(response.data);
         // Update the uploads state with the response data
@@ -117,26 +119,24 @@ const handleCloseModal = () => {
       console.error('User ID not found in local storage.');
       return;
     }
-  
+
     try {
       // Make API request to delete the meeting
       const response = await axios.delete('https://averymeet.onrender.com/delete_upload', {
-        params: { user_id: userId, meeting_id: meetingId },
+        params: { user_id: userId, meeting_id: meetingId }
       });
-      
+
       // Log the success message
       console.log(response.data.message);
-  
+
       // Refresh the uploads after deletion
       setUploads((prevUploads) => prevUploads.filter((upload) => upload.id !== meetingId));
     } catch (error) {
       console.error('Error deleting upload:', error);
     }
   };
-  
 
   return (
-    
     <ComponentSkeleton>
       <Grid container spacing={3}>
         <Grid item xs={12} lg={6}>
@@ -144,7 +144,7 @@ const handleCloseModal = () => {
             <MainCard title="Upload Meeting">
               <Stack spacing={2}>
                 <Typography variant="body1" gutterBottom>
-                  Works best with  mp3
+                  Works best with mp3
                   <br />
                   Max 4h per recording.
                   <br />
@@ -153,29 +153,32 @@ const handleCloseModal = () => {
 
                 {/* Radio buttons for meeting type */}
                 <Typography variant="body1">Select Meeting Type:</Typography>
-                <RadioGroup
-                  value={meetingType}
-                  onChange={(e) => setMeetingType(e.target.value)}
-                >
+                <RadioGroup value={meetingType} onChange={(e) => setMeetingType(e.target.value)}>
                   <FormControlLabel value="interview" control={<Radio />} label="Interview" />
                   <FormControlLabel value="meeting" control={<Radio />} label="Meeting" />
                   <FormControlLabel value="discussion" control={<Radio />} label="Discussion" />
                 </RadioGroup>
 
                 {/* Hidden file input element */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".mp3"
-                  style={{ display: 'none' }}
-                  onChange={handleFileChange}
-                />
-                <Button variant="contained" color="primary" onClick={handleFileUploadClick}>
-                  Upload Meeting
+                <input ref={fileInputRef} type="file" accept=".mp3" style={{ display: 'none' }} onChange={handleFileChange} />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleFileUploadClick}
+                  disabled={loading} // Disable button while loading
+                  style={{ position: 'relative' }} // Set position relative for loader positioning
+                >
+                  {loading && (
+                    <CircularProgress
+                      size={24}
+                      style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
+                    />
+                  )}
+                  {!loading && 'Upload Meeting'}
                 </Button>
-                
+
                 {/* Display upload status */}
-                {uploadStatus && <Typography variant="body1">{uploadStatus}</Typography>}
+                {/* {uploadStatus && <Typography variant="body1">{uploadStatus}</Typography>} */}
 
                 {/* Display transcription */}
                 {transcription && (
@@ -203,7 +206,8 @@ const handleCloseModal = () => {
                   AveryMeet works best when connected to your calendar. Connect one in order to reap the full benefits.
                 </Typography>
                 <Typography variant="body1">
-                  We expect you to upload professional content related to meetings, webinars, online classes, or similar as per our terms and conditions.
+                  We expect you to upload professional content related to meetings, webinars, online classes, or similar as per our terms
+                  and conditions.
                 </Typography>
               </Stack>
             </MainCard>
@@ -236,26 +240,32 @@ const handleCloseModal = () => {
                 <React.Fragment key={upload.id}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography variant="body1" noWrap>{upload.file_name || 'Untitled'}</Typography>
+                      <Typography variant="body1" noWrap>
+                        {upload.file_name || 'Untitled'}
+                      </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography variant="body1" noWrap>{upload.timestamp || 'Unknown'}</Typography>
+                      <Typography variant="body1" noWrap>
+                        {upload.timestamp || 'Unknown'}
+                      </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography variant="body1" noWrap>{'Success'}</Typography>
+                      <Typography variant="body1" noWrap>
+                        {'Success'}
+                      </Typography>
                     </Grid>
 
                     {/* Actions */}
                     <Grid item xs={12} sm={6} md={3}>
-                      <Stack direction="column" spacing={1}sx={{ marginLeft:'-25px',}} >
+                      <Stack direction="column" spacing={1} sx={{ marginLeft: '-25px' }}>
                         <Stack direction="row" spacing={1} alignItems="center">
                           <Button
                             variant="contained"
                             sx={{ color: 'white', width: '100px', height: '40px' }}
                             color="primary"
-                            onClick={() => handleOpenModal(upload.transcription, upload.summary)} 
+                            onClick={() => handleOpenModal(upload.transcription, upload.summary)}
                           >
-                          Details
+                            Details
                           </Button>
                           <Button
                             variant="outlined"
@@ -278,8 +288,8 @@ const handleCloseModal = () => {
           </MainCard>
         </Grid>
       </Grid>
-        {/* Modal for displaying transcription and summary */}
-        <Dialog open={open} onClose={handleCloseModal} fullWidth>
+      {/* Modal for displaying transcription and summary */}
+      <Dialog open={open} onClose={handleCloseModal} fullWidth>
         <DialogTitle>Transcription and Summary Details</DialogTitle>
         <DialogContent>
           <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
