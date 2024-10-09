@@ -1,36 +1,52 @@
-// material-ui
 import Button from '@mui/material/Button';
-import CardMedia from '@mui/material/CardMedia';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-
-// project import
-import MainCard from 'components/MainCard';
-
-// assets
-import avatar from 'assets/images/users/avatar-group.png';
-import AnimateButton from 'components/@extended/AnimateButton';
-
+import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../../../../firebase';
 // ==============================|| DRAWER CONTENT - NAVIGATION CARD ||============================== //
 
 export default function NavCard() {
+
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    auth.signOut()
+      .then(() => {
+        // Remove user ID from local storage
+        localStorage.removeItem('id');
+        
+        // Optionally, remove other related keys if necessary
+        // localStorage.removeItem('otherKey');
+  
+        // Navigate to login page
+        navigate('/login', { replace: true });
+      })
+      .catch((error) => {
+        console.error('Error signing out:', error);
+        // Handle any errors that might occur during sign out
+      });
+  };
   return (
-    <MainCard sx={{ bgcolor: 'grey.50', m: 3 }}>
-      <Stack alignItems="center" spacing={2.5}>
-        <CardMedia component="img" image={avatar} sx={{ width: 112 }} />
-        <Stack alignItems="center">
-          <Typography variant="h5">Mantis Pro</Typography>
-          <Typography variant="h6" color="secondary">
-            Checkout pro features
-          </Typography>
-        </Stack>
-        <AnimateButton>
-          <Button component={Link} target="_blank" href="https://mantisdashboard.io" variant="contained" color="success" size="small">
-            Pro
-          </Button>
-        </AnimateButton>
-      </Stack>
-    </MainCard>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-start',
+        height: '50vh', // Full height for vertical alignment
+        padding: 2, // Padding for spacing
+      }}
+    >
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{
+          width: '100%', // Full width button
+          maxWidth: '300px', // Adjust width as per your design
+        }}
+        onClick={handleLogout}
+      >
+        Logout
+      </Button>
+    </Box>
   );
 }
