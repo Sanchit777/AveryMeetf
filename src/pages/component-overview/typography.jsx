@@ -114,7 +114,7 @@ export default function ComponentTypography() {
         setUploadStatus('Uploading...');
 
         // Make API request to localhost:5000/transcribe
-        const response = await axios.post('https://averymeet.onrender.com/transcribe', formData, {
+        const response = await axios.post('https://avery-meet.vercel.app/transcribe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -151,7 +151,7 @@ export default function ComponentTypography() {
       if (!userId) return;
 
       try {
-        const response = await axios.get('https://averymeet.onrender.com/uploads', {
+        const response = await axios.get('https://avery-meet.vercel.app/uploads', {
           params: { user_id: userId },
         });
         console.log(response.data);
@@ -175,7 +175,7 @@ export default function ComponentTypography() {
 
     try {
       // Make API request to delete the meeting
-      const response = await axios.delete('https://averymeet.onrender.com/delete_upload', {
+      const response = await axios.delete('https://avery-meet.vercel.app/delete_upload', {
         params: { user_id: userId, meeting_id: meetingId },
       });
 

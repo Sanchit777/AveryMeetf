@@ -10,6 +10,7 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import React, { useState, useEffect , useCallback} from 'react'
@@ -20,6 +21,7 @@ import NOData from '../../assets/images/users/nodata.jpg'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 // assets
+
 import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
@@ -62,11 +64,11 @@ export default function DashboardDefault() {
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://averymeet.onrender.com/meetings', {
+      const response = await axios.post('https://avery-meet.vercel.app/meetings', null, {
         params: { user_id: userId }, // Pass user_id as a query parameter
       });
-      setMeetings(response.data); 
-      console.log("TT01:",response.data);// Assuming response.data is the array of meeting objects
+      setMeetings(response.data);
+      console.log("TT01:", response.data, "response ended:"); // Assuming response.data is the array of meeting objects
       setLoading(false);
     } catch (error) {
       console.error('Error fetching meetings:', error);
@@ -91,7 +93,7 @@ export default function DashboardDefault() {
     setLoadingSummary(true); 
     setbot_id(bot_id)// Start showing loader
     try {
-      const response = await axios.get(`https://averymeet.onrender.com/meeting_data`, {
+      const response = await axios.get(`https://avery-meet.vercel.app/meeting_data`, {
         params: { bot_id, user_id: userId }  // Add user_id as a query parameter
       });
       const data = response.data;
@@ -131,33 +133,74 @@ export default function DashboardDefault() {
 };
 
 
-  const sendBotToMeeting = async (meetingUrl) => {
-    const url = "https://averymeet.onrender.com/start-meeting-bot"; // Replace with your Python backend URL
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          meeting_url: meetingUrl,
-          user_id: userId,  // Add user_id to the request body
-        }),
-      });
-      if (response.ok) {
-        
-        setSuccessMessage('Bot has been successfully sent to the meeting!');
-        setError('');
-      } else {
-        const errorMessage = await response.text();
-        setError('Failed to send bot to meeting: ' + errorMessage);
-        setSuccessMessage('');
+const sendBotToMeeting = async (meetingUrl) => {
+  const url = "https://avery-meet.vercel.app/start-meeting-bot"; // Replace with your Python backend URL
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        meeting_url: meetingUrl,
+        user_id: userId,  // Ensure userId is defined in the outer scope
+      }),
+    });
+
+    if (response.ok) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+      let receivedData = '';
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          receivedData += chunk;
+
+          const messages = receivedData.split('\n\n');
+          for (let i = 0; i < messages.length - 1; i++) {
+            try {
+              const jsonChunk = JSON.parse(messages[i].replace(/^data: /, ''));
+              console.log('Intermediate Response: ', jsonChunk);
+              setSuccessMessage('Bot Status: ' + jsonChunk.status);
+            } catch (e) {
+              console.error("Error parsing JSON: ", e);
+            }
+          }
+
+          // Keep the last message as potential incomplete JSON
+          receivedData = messages[messages.length - 1];
+        }
       }
-    } catch (error) {
-      setError('Network Error: ' + error.message);
+
+      // Handle the final message after the stream is done
+      try {
+        if (receivedData) { // Ensure there is data to parse
+          const jsonChunk = JSON.parse(receivedData);
+          console.log('Final Response: ', jsonChunk);
+          setSuccessMessage('Bot Status: ' + jsonChunk.status);
+        }
+      } catch (e) {
+        console.error("Error parsing final JSON: ", e);
+      }
+
+      setSuccessMessage('Bot has successfully completed the meeting!');
+      setError('');
+    } else {
+      const errorMessage = await response.text();
+      setError('Failed to send bot to meeting: ' + errorMessage);
       setSuccessMessage('');
     }
-  };
+  } catch (error) {
+    setError('Network Error: ' + error.message);
+    setSuccessMessage('');
+  }
+};
 
 
 
@@ -194,7 +237,7 @@ export default function DashboardDefault() {
   const handleLastMeetingFetch = async () => {
     setLoadingSummary(true); // Start showing loader
     try {
-      const response = await axios.get(`https://averymeet.onrender.com/last_meeting_summary`, {
+      const response = await axios.get(`http://localhost:5000/last_meeting_summary`, {
         params: { user_id: userId,  } // Indicate that this is the last meeting fetch
       });
       const data = response.data;
