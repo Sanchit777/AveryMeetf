@@ -66,7 +66,7 @@ export default function AuthLogin({ isDemo = false }) {
             const user = userCredential.user;
 
             const idToken = await user.getIdToken();
-            const response = await axios.post('https://avery-meet.vercel.app/verify-token', { idToken });
+            const response = await axios.post('https://avery-meet-pscj.vercel.app/verify-token', { idToken });
 
             if (response.status === 200) {
               localStorage.setItem("id", user.uid);
