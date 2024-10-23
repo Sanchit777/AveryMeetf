@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // Material-UI imports
-
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Table from '@mui/material/Table';
@@ -11,17 +12,22 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Box from '@mui/material/Box';
-
-import NOData from '../../assets/images/users/nodata.jpg'
+import NOData from '../../assets/images/users/nodata.jpg';
+import ReactPlayer from 'react-player';
 // ==============================|| ORDER TABLE ||============================== //
 // Main component
 export default function OrderTable({ botData = [], meetingData = {}, is_last_meeting = null }) {
   const [activeTab, setActiveTab] = useState(0);
+  const [recordingUrl, setRecordingUrl] = useState('');
   // Log botData and meetingData when component mounts or updates
   useEffect(() => {
     console.log('Bot Data from comp:', botData);
     console.log('Meeting Data from comp:', meetingData);
     console.log('Is Last Meeting:', is_last_meeting);
+    // Fetch the recording URL from meetingData if available
+    if (meetingData && meetingData.mp4_url) {
+      setRecordingUrl(meetingData.mp4_url);
+    }
   }, [botData, meetingData, is_last_meeting]); // Dependency array to re-run effect when these change
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -38,7 +44,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
             alt="No meetings"
             style={{ width: '80%', height: '80%' }}
           />
-          <h3  style={{textAlign:'center' }} >No meeting data available.</h3>
+          <h3 style={{ textAlign: 'center' }}>No meeting data available.</h3>
         </div>
       );
     }
@@ -54,7 +60,6 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
     let startFiltering = false;
     const formattedTranscription = transcriptionEntries
       .map(entry => {
-        // Extract the speaker's name from the cleaned entry
         const nameMatch = entry.cleanedEntry.match(/^(\w+\s\w+)(.*)/);
         const speakerName = nameMatch ? nameMatch[1] : ''; // Capture the speaker's name
         const text = nameMatch ? nameMatch[2].trim() : entry.cleanedEntry; // Capture the text
@@ -74,7 +79,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
           </div>
         );
       })
-      .filter(Boolean);// Join entries with newline for display
+      .filter(Boolean); // Filter out null values
     const meetingDetails = (
       <TableContainer>
         <Table>
@@ -92,17 +97,9 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
                   : 'No attendees available.'}
               </TableCell>
             </TableRow>
-            {/* <TableRow>
-            <TableCell>
-              <strong>Meeting URL:</strong>
-              <Link href={meetingData.mp4_url} target="_blank" rel="noopener noreferrer">
-                {meetingData.mp4_url || 'No URL available.'}
-              </Link>
-            </TableCell>
-          </TableRow> */}
             <TableRow>
               <TableCell>
-              <strong>Summary:- </strong> {meetingData.summary || 'No summary available.'}
+                <strong>Summary:- </strong> {meetingData.summary || 'No summary available.'}
               </TableCell>
             </TableRow>
           </TableBody>
@@ -117,22 +114,15 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
               formattedTranscription
             ) : (
               <div>
-          <img
-            src={NOData}
-            alt="No meetings"
-            style={{ width: '80%', height: '80%' }}
-          />
-          <h3  style={{textAlign:'center' }} >No Transcription available.</h3>
-        </div>
+                <img
+                  src={NOData}
+                  alt="No meetings"
+                  style={{ width: '80%', height: '80%' }}
+                />
+                <h3 style={{ textAlign: 'center' }}>No Transcription available.</h3>
+              </div>
             )}
           </div>
-        </TableCell>
-      </TableRow>
-    );
-    const summaryContent = (
-      <TableRow>
-        <TableCell>
-          <strong>Summary:</strong> {meetingData.summary || 'No summary available.'}
         </TableCell>
       </TableRow>
     );
@@ -141,7 +131,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
         // If the active tab is Transcription
         return (
           <div>
-            <h3 style={{ textAlign: 'center' }}>Last Meeting Transcription  Details</h3>
+            <h3 style={{ textAlign: 'center' }}>Last Meeting Transcription Details</h3>
             {transcriptionContent}
           </div>
         );
@@ -149,8 +139,26 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
         // If the active tab is Summary
         return (
           <div>
-            <h3 style={{ textAlign: 'center' }}>Last Meeting Summary  Details</h3>
+            <h3 style={{ textAlign: 'center' }}>Last Meeting Summary Details</h3>
             {meetingDetails}
+          </div>
+        );
+      } else if (activeTab === 2) {
+        // If the active tab is Recording
+        return (
+          <div style={{ textAlign: 'center', marginTop: '150px', marginLeft: '150px' }}>
+            {recordingUrl ? (
+              <ReactPlayer url={recordingUrl} controls />
+            ) : (
+              <div>
+                <img
+                  src={NOData}
+                  alt="No meetings"
+                  style={{ width: '80%', height: '80%' }}
+                />
+                <h3>No recording available.</h3>
+              </div>
+            )}
           </div>
         );
       }
@@ -182,21 +190,10 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
       <Tabs value={activeTab} onChange={handleTabChange} aria-label="basic tabs example">
         <Tab label="Transcription" />
         <Tab label="Summary" />
+        <Tab label="Recording" />
       </Tabs>
       {/* Render content based on is_last_meeting and activeTab */}
       {renderContent()}
-      {/* Table Container */}
-      <TableContainer
-        sx={{
-          width: '100%',
-          overflowX: 'auto',
-          position: 'relative',
-          display: 'block',
-          maxWidth: '100%',
-          '& td, & th': { whiteSpace: 'nowrap' },
-        }}
-      >
-      </TableContainer>
     </Box>
   );
 }

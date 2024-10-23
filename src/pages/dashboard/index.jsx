@@ -64,7 +64,7 @@ export default function DashboardDefault() {
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://avery-meet.vercel.app/meetings', null, {
+      const response = await axios.post('https://avery-meet-pscj.vercel.app/meetings', null, {
         params: { user_id: userId }, // Pass user_id as a query parameter
       });
       setMeetings(response.data);
@@ -93,7 +93,7 @@ export default function DashboardDefault() {
     setLoadingSummary(true); 
     setbot_id(bot_id)// Start showing loader
     try {
-      const response = await axios.get(`https://avery-meet.vercel.app/meeting_data`, {
+      const response = await axios.get(`https://avery-meet-pscj.vercel.app/meeting_data`, {
         params: { bot_id, user_id: userId }  // Add user_id as a query parameter
       });
       const data = response.data;
@@ -134,7 +134,7 @@ export default function DashboardDefault() {
 
 
 const sendBotToMeeting = async (meetingUrl) => {
-  const url = "https://avery-meet.vercel.app/start-meeting-bot"; // Replace with your Python backend URL
+  const url = "https://avery-meet-pscj.vercel.app/start-meeting-bot"; // Replace with your Python backend URL
   
   try {
     const response = await fetch(url, {
@@ -234,29 +234,28 @@ const sendBotToMeeting = async (meetingUrl) => {
 };
 
 
-  const handleLastMeetingFetch = async () => {
-    setLoadingSummary(true); // Start showing loader
-    try {
-      const response = await axios.get(`http://localhost:5000/last_meeting_summary`, {
-        params: { user_id: userId,  } // Indicate that this is the last meeting fetch
+const handleLastMeetingFetch = async () => {
+  setLoadingSummary(true); // Start showing loader
+  try {
+    const response = await axios.post(`https://avery-meet-pscj.vercel.app/last_meeting_summary`, {
+      user_id: userId  // Send user_id in the request body
+    });
+    const data = response.data;
+    if (data && data.meeting_summary) {
+      setSelectedBotData({
+        bot_data: '',
+        meeting_data: data.meeting_summary,
+        is_last_meeting: true,
       });
-      const data = response.data;
-      console.log(data);
-      if (data && data.meeting_summary) {
-        setSelectedBotData({
-          bot_data: '',
-          meeting_data: data.meeting_summary, 
-          is_last_meeting: true,
-        });
-      } else {
-        console.error('Invalid data format received from backend.');
-      }
-    } catch (error) {
-      console.error('Error fetching last meeting data:', error);
-    } finally {
-      setLoadingSummary(false); // Stop showing loader
+    } else {
+      console.error('Invalid data format received from backend.');
     }
-  };
+  } catch (error) {
+    console.error('Error fetching last meeting data:', error);
+  } finally {
+    setLoadingSummary(false); // Stop showing loader
+  }
+};
 
   const getMeetingLogo = (meetingUrl) => {
     if (meetingUrl.includes('meet.google.com')) {

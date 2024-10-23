@@ -114,7 +114,7 @@ export default function ComponentTypography() {
         setUploadStatus('Uploading...');
 
         // Make API request to localhost:5000/transcribe
-        const response = await axios.post('https://avery-meet.vercel.app/transcribe', formData, {
+        const response = await axios.post('https://avery-meet-pscj.vercel.app/transcribe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -149,10 +149,9 @@ export default function ComponentTypography() {
   useEffect(() => {
     const fetchUploads = async () => {
       if (!userId) return;
-
       try {
-        const response = await axios.get('https://avery-meet.vercel.app/uploads', {
-          params: { user_id: userId },
+        const response = await axios.post('https://avery-meet-pscj.vercel.app/uploads', {
+          user_id: userId, // Send user_id in the request body
         });
         console.log(response.data);
         // Update the uploads state with the response data
@@ -163,11 +162,10 @@ export default function ComponentTypography() {
         setLoading(false);
       }
     };
-
     fetchUploads();
   }, [userId]);
-
-  const handleDeleteUpload = async (meetingId) => {
+  
+const handleDeleteUpload = async (meetingId) => {
     if (!userId) {
       console.error('User ID not found in local storage.');
       return;
@@ -175,7 +173,7 @@ export default function ComponentTypography() {
 
     try {
       // Make API request to delete the meeting
-      const response = await axios.delete('https://avery-meet.vercel.app/delete_upload', {
+      const response = await axios.delete('https://avery-meet-pscj.vercel.app/delete_upload', {
         params: { user_id: userId, meeting_id: meetingId },
       });
 
