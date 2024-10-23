@@ -16,7 +16,7 @@ import NOData from '../../assets/images/users/nodata.jpg';
 import ReactPlayer from 'react-player';
 // ==============================|| ORDER TABLE ||============================== //
 // Main component
-export default function OrderTable({ botData = [], meetingData = {}, is_last_meeting = null }) {
+export default function OrderTable({ botData = [], meetingData = [], is_last_meeting = null }) {
   const [activeTab, setActiveTab] = useState(0);
   const [recordingUrl, setRecordingUrl] = useState('');
   // Log botData and meetingData when component mounts or updates
@@ -39,16 +39,12 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
     if (!meetingData || Object.keys(meetingData).length === 0) {
       return (
         <div>
-          <img
-            src={NOData}
-            alt="No meetings"
-            style={{ width: '80%', height: '80%' }}
-          />
+          <img src={NOData} alt="No meetings" style={{ width: '80%', height: '80%' }} />
           <h3 style={{ textAlign: 'center' }}>No meeting data available.</h3>
         </div>
       );
     }
-    const transcriptionEntries = meetingData.transcription.map(entry => {
+    const transcriptionEntries = meetingData.transcription.map((entry) => {
       const cleanedEntry = entry.replace(/at \d+\.\d+ss/g, '').trim(); // Remove timestamps
       const timeMatch = entry.match(/at (\d+\.\d+)ss/); // Extract time for sorting
       const time = timeMatch ? parseFloat(timeMatch[1]) : 0; // Get the time value
@@ -59,7 +55,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
     // Filter out "Thank you" until we find meaningful dialogue
     let startFiltering = false;
     const formattedTranscription = transcriptionEntries
-      .map(entry => {
+      .map((entry) => {
         const nameMatch = entry.cleanedEntry.match(/^(\w+\s\w+)(.*)/);
         const speakerName = nameMatch ? nameMatch[1] : ''; // Capture the speaker's name
         const text = nameMatch ? nameMatch[2].trim() : entry.cleanedEntry; // Capture the text
@@ -93,7 +89,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
               <TableCell>
                 <strong>Attendees:- </strong>
                 {meetingData.attendees?.length > 0
-                  ? meetingData.attendees.map(attendee => attendee.name && attendee.name !== '-' ? attendee.name : 'Unknown').join(', ')
+                  ? meetingData.attendees.map((attendee) => (attendee.name && attendee.name !== '-' ? attendee.name : 'Unknown')).join(', ')
                   : 'No attendees available.'}
               </TableCell>
             </TableRow>
@@ -114,11 +110,7 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
               formattedTranscription
             ) : (
               <div>
-                <img
-                  src={NOData}
-                  alt="No meetings"
-                  style={{ width: '80%', height: '80%' }}
-                />
+                <img src={NOData} alt="No meetings" style={{ width: '80%', height: '80%' }} />
                 <h3 style={{ textAlign: 'center' }}>No Transcription available.</h3>
               </div>
             )}
@@ -146,16 +138,21 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
       } else if (activeTab === 2) {
         // If the active tab is Recording
         return (
-          <div style={{ textAlign: 'center', marginTop: '150px', marginLeft: '150px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh',
+              flexDirection: 'column',
+              textAlign: 'center'
+            }}
+          >
             {recordingUrl ? (
               <ReactPlayer url={recordingUrl} controls />
             ) : (
               <div>
-                <img
-                  src={NOData}
-                  alt="No meetings"
-                  style={{ width: '80%', height: '80%' }}
-                />
+                <img src={NOData} alt="No meetings" style={{ width: '80%', height: '80%' }} />
                 <h3>No recording available.</h3>
               </div>
             )}
@@ -177,6 +174,29 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
           <div>
             <h3 style={{ textAlign: 'center' }}>Meeting Details</h3>
             {meetingDetails}
+          </div>
+        );
+      } else if (activeTab === 2) {
+        // If the active tab is Recording
+        return (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh',
+              flexDirection: 'column',
+              textAlign: 'center'
+            }}
+          >
+            {recordingUrl ? (
+              <ReactPlayer url={recordingUrl} controls />
+            ) : (
+              <div>
+                <img src={NOData} alt="No meetings" style={{ width: '80%', height: '80%' }} />
+                <h3>No recording available.</h3>
+              </div>
+            )}
           </div>
         );
       }
@@ -201,5 +221,5 @@ export default function OrderTable({ botData = [], meetingData = {}, is_last_mee
 OrderTable.propTypes = {
   botData: PropTypes.any, // Ensure botData is passed
   meetingData: PropTypes.object, // Ensure meetingData is an object
-  is_last_meeting: PropTypes.bool, // Expecting a boolean value
+  is_last_meeting: PropTypes.bool // Expecting a boolean value
 };
