@@ -64,7 +64,7 @@ export default function DashboardDefault() {
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://avery-meet-pscj.vercel.app/meetings', null, {
+      const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/meetings', null, {
         params: { user_id: userId }, // Pass user_id as a query parameter
       });
       setMeetings(response.data);
@@ -90,19 +90,21 @@ export default function DashboardDefault() {
   },[]);
 
   const handleMeetingClick = async (bot_id) => {
-    setLoadingSummary(true); 
-    setbot_id(bot_id)// Start showing loader
+    setLoadingSummary(true);
+    setbot_id(bot_id); // Start showing loader
     try {
-      const response = await axios.get(`https://avery-meet-pscj.vercel.app/meeting_data`, {
-        params: { bot_id, user_id: userId }  // Add user_id as a query parameter
+      // Make POST request to backend
+      const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/meeting_data', {
+        bot_id,
+        user_id: userId  // Pass user_id in the request body instead of query params
       });
       const data = response.data;
-      console.log(data)
+      console.log(data);
       if (data && data.bot_data && data.meeting_summary) {
         setSelectedBotData({
           bot_data: data.bot_data,
-          meeting_data: data.meeting_summary[0],
-          is_last_meeting: false, // Assuming the meeting_data is an array, taking the first element
+          meeting_data: data.meeting_summary[0], // Assuming the meeting_data is an array, taking the first element
+          is_last_meeting: false,
         });
       } else {
         console.error('Invalid data format received from backend.');
@@ -113,7 +115,6 @@ export default function DashboardDefault() {
       setLoadingSummary(false); // Stop showing loader
     }
   };
-
   
   const validateMeetingUrl = (url) => {
     // Example implementation, make sure yours covers all platforms
@@ -134,7 +135,7 @@ export default function DashboardDefault() {
 
 
 const sendBotToMeeting = async (meetingUrl) => {
-  const url = "https://avery-meet-pscj.vercel.app/start-meeting-bot"; // Replace with your Python backend URL
+  const url = "https://9d8b-49-43-3-195.ngrok-free.app/start-meeting-bot"; // Replace with your Python backend URL
   
   try {
     const response = await fetch(url, {
@@ -237,7 +238,7 @@ const sendBotToMeeting = async (meetingUrl) => {
 const handleLastMeetingFetch = async () => {
   setLoadingSummary(true); // Start showing loader
   try {
-    const response = await axios.post(`https://avery-meet-pscj.vercel.app/last_meeting_summary`, {
+    const response = await axios.post(`https://9d8b-49-43-3-195.ngrok-free.app/last_meeting_summary`, {
       user_id: userId  // Send user_id in the request body
     });
     const data = response.data;

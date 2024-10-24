@@ -114,7 +114,7 @@ export default function ComponentTypography() {
         setUploadStatus('Uploading...');
 
         // Make API request to localhost:5000/transcribe
-        const response = await axios.post('https://avery-meet-pscj.vercel.app/transcribe', formData, {
+        const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/transcribe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -148,21 +148,24 @@ export default function ComponentTypography() {
   // Fetch uploads data from the API
   useEffect(() => {
     const fetchUploads = async () => {
-      if (!userId) return;
+      if (!userId) return; // Exit if userId is not available
+      setLoading(true); // Set loading to true before the API call
       try {
-        const response = await axios.post('https://avery-meet-pscj.vercel.app/uploads', {
+        const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/uploads', {
           user_id: userId, // Send user_id in the request body
         });
         console.log(response.data);
         // Update the uploads state with the response data
         setUploads(response.data);
-        setLoading(false);
       } catch (error) {
-        console.error('Error fetching uploads:', error);
+        // Improved error logging for clarity
+        console.error('Error fetching uploads:', error?.response?.data || error.message || error);
+      } finally {
+        // Ensure loading is set to false after the call, even on failure
         setLoading(false);
       }
     };
-    fetchUploads();
+    fetchUploads(); // Invoke the fetch function
   }, [userId]);
   
 const handleDeleteUpload = async (meetingId) => {
@@ -173,7 +176,7 @@ const handleDeleteUpload = async (meetingId) => {
 
     try {
       // Make API request to delete the meeting
-      const response = await axios.delete('https://avery-meet-pscj.vercel.app/delete_upload', {
+      const response = await axios.delete('https://9d8b-49-43-3-195.ngrok-free.app/delete_upload', {
         params: { user_id: userId, meeting_id: meetingId },
       });
 

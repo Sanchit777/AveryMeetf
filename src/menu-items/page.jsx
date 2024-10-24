@@ -23,6 +23,14 @@ const pages = {
       target: true
     },
     {
+      id: 'forgotpass1',
+      title: 'Forgot Password',
+      type: 'item',
+      url: '/forgotpassword',
+      icon: icons.ProfileOutlined,
+      target: true
+    },
+    {
       id: 'register1',
       title: 'Register',
       type: 'item',

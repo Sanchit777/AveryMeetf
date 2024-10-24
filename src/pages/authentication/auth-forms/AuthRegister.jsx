@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-// material-ui
+// Material-UI
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -15,18 +15,19 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-// third party
+// Third-party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { ToastContainer, toast } from 'react-toastify'; // Import toast
 
-// project import
+// Project import
 import AnimateButton from 'components/@extended/AnimateButton';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
-import { auth, db } from "../../../../firebase";
+import { auth, db } from '../../../../firebase';
 
-// assets
+// Assets
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
@@ -35,7 +36,8 @@ import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 export default function AuthRegister() {
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -55,6 +57,7 @@ export default function AuthRegister() {
 
   return (
     <>
+      <ToastContainer />
       <Formik
         initialValues={{
           name: '',
@@ -68,29 +71,57 @@ export default function AuthRegister() {
           password: Yup.string().max(255).required('Password is required')
         })}
         onSubmit={async (values, { setSubmitting, setErrors }) => {
-          console.log(values);
+          console.log('Registration values:', values);
           try {
             // Firebase registration
             const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
             const user = userCredential.user;
+            console.log('User registered:', user.uid); // Log user ID
+
             const userData = {
               uid: user.uid,
               email: values.email,
               name: values.name,
-              created_at: serverTimestamp(), // Use Firestore server timestamp
+              created_at: serverTimestamp() // Use Firestore server timestamp
             };
-            
-            
+
             // Save user data in Firestore
-            await setDoc(doc(db, "users", user.uid), userData);
-      
+            await setDoc(doc(db, 'users', user.uid), userData);
+            console.log('User data saved to Firestore:', userData); // Log saved data
+
+            // Send email verification
+            await sendEmailVerification(user);
+            console.log('Verification email sent to:', values.email); // Log sent email
+
             // Save user ID to localStorage
-            localStorage.setItem("id", user.uid);
-            
-            navigate('/login'); // Navigate to home or dashboard
+            localStorage.setItem('id', user.uid);
+
+            // Show success toast notification
+            toast.success('Registration successful! Please verify your email.', {
+              autoClose: 5000, // Close after 5 seconds
+              onClose: () => {
+                navigate('/login'); // Navigate to login after toast closes
+              }
+            });
           } catch (error) {
-            console.error("Error during registration: ", error);
-          } 
+            console.error('Error during registration: ', error);
+
+            // Set appropriate error message and show error toast notification
+            let errorMessage = 'Registration failed. Please try again.';
+            if (error.code === 'auth/email-already-in-use') {
+              errorMessage = 'Email is already registered';
+              setErrors({ submit: errorMessage }); // Set error for form
+            } else {
+              setErrors({ submit: errorMessage }); // Set general error for form
+            }
+
+            // Show error toast notification
+            toast.error(errorMessage, {
+              autoClose: 5000 // Close after 5 seconds
+            });
+          } finally {
+            setSubmitting(false); // Stop submitting state
+          }
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
@@ -117,49 +148,7 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
-              {/* <Grid item xs={12} md={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="lastname-signup">Last Name*</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.lastname && errors.lastname)}
-                    id="lastname-signup"
-                    type="lastname"
-                    value={values.lastname}
-                    name="lastname"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Doe"
-                    inputProps={{}}
-                  />
-                </Stack>
-                {touched.lastname && errors.lastname && (
-                  <FormHelperText error id="helper-text-lastname-signup">
-                    {errors.lastname}
-                  </FormHelperText>
-                )}
-              </Grid> */}
-              {/* <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="company-signup">Company</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.company && errors.company)}
-                    id="company-signup"
-                    value={values.company}
-                    name="company"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Demo Inc."
-                    inputProps={{}}
-                  />
-                </Stack>
-                {touched.company && errors.company && (
-                  <FormHelperText error id="helper-text-company-signup">
-                    {errors.company}
-                  </FormHelperText>
-                )}
-              </Grid> */}
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="email-signup">Email Address*</InputLabel>
@@ -173,7 +162,6 @@ export default function AuthRegister() {
                     onBlur={handleBlur}
                     onChange={handleChange}
                     placeholder="demo@company.com"
-                    inputProps={{}}
                   />
                 </Stack>
                 {touched.email && errors.email && (
@@ -182,6 +170,7 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="password-signup">Password</InputLabel>
@@ -211,7 +200,6 @@ export default function AuthRegister() {
                       </InputAdornment>
                     }
                     placeholder="******"
-                    inputProps={{}}
                   />
                 </Stack>
                 {touched.password && errors.password && (
@@ -232,6 +220,7 @@ export default function AuthRegister() {
                   </Grid>
                 </FormControl>
               </Grid>
+
               <Grid item xs={12}>
                 <Typography variant="body2">
                   By Signing up, you agree to our &nbsp;
@@ -244,11 +233,13 @@ export default function AuthRegister() {
                   </Link>
                 </Typography>
               </Grid>
+
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
                 </Grid>
               )}
+
               <Grid item xs={12}>
                 <AnimateButton>
                   <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">

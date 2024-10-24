@@ -1,13 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../../firebase';
 
 // material-ui
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
+
 import FormHelperText from '@mui/material/FormHelperText';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
@@ -16,8 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import axios from 'axios'; 
+
+import axios from 'axios';
 
 // third party
 import * as Yup from 'yup';
@@ -32,9 +31,7 @@ import AnimateButton from 'components/@extended/AnimateButton';
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
-
-export default function AuthLogin({ isDemo = false }) {
-  const [checked, setChecked] = React.useState(false);
+export default function AuthLogin() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const navigate = useNavigate();
@@ -64,19 +61,24 @@ export default function AuthLogin({ isDemo = false }) {
           try {
             const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
             const user = userCredential.user;
-
+            // Check if the email is verified
+            if (!user.emailVerified) {
+              toast.error('Please verify your email address.');
+              setErrors({ submit: 'Email not verified. Please check your inbox.' });
+              return;
+            }
             const idToken = await user.getIdToken();
-            const response = await axios.post('https://avery-meet-pscj.vercel.app/verify-token', { idToken });
+            const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/verify-token', { idToken });
 
             if (response.status === 200) {
-              localStorage.setItem("id", user.uid);
+              localStorage.setItem('id', user.uid);
               navigate('/');
             } else {
-              toast.error("Invalid token or error in verification");
+              toast.error('Invalid token or error in verification');
             }
           } catch (error) {
-            toast.error("Invalid Credential");
-            setErrors({ submit: "Failed to log in or verify token." });
+            toast.error('Invalid Credential');
+            setErrors({ submit: 'Failed to log in or verify token.' });
           } finally {
             setSubmitting(false);
           }
@@ -155,9 +157,13 @@ export default function AuthLogin({ isDemo = false }) {
                     }
                     label={<Typography variant="h6">Keep me signed in</Typography>}
                   /> */}
-                  {/* <Link variant="h6" component={RouterLink} color="text.primary">
-                    Forgot Password?
-                  </Link> */}
+                  <Grid item xs={12} sx={{ mt: -1 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+                      <Link variant="h6" component={RouterLink} to="/forgotpassword" color="text.primary">
+                        Forgot Password?
+                      </Link>
+                    </Stack>
+                  </Grid>
                 </Stack>
               </Grid>
               {errors.submit && (
