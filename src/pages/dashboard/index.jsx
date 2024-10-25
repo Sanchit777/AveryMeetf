@@ -64,7 +64,7 @@ export default function DashboardDefault() {
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/meetings', null, {
+      const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/meetings', null, {
         params: { user_id: userId }, // Pass user_id as a query parameter
       });
       setMeetings(response.data);
@@ -94,7 +94,7 @@ export default function DashboardDefault() {
     setbot_id(bot_id); // Start showing loader
     try {
       // Make POST request to backend
-      const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/meeting_data', {
+      const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/meeting_data', {
         bot_id,
         user_id: userId  // Pass user_id in the request body instead of query params
       });
@@ -135,7 +135,7 @@ export default function DashboardDefault() {
 
 
 const sendBotToMeeting = async (meetingUrl) => {
-  const url = "https://9d8b-49-43-3-195.ngrok-free.app/start-meeting-bot"; // Replace with your Python backend URL
+  const url = "https://ea47-49-43-3-195.ngrok-free.app/start-meeting-bot"; // Replace with your Python backend URL
   
   try {
     const response = await fetch(url, {
@@ -154,7 +154,7 @@ const sendBotToMeeting = async (meetingUrl) => {
       const decoder = new TextDecoder("utf-8");
       let done = false;
       let receivedData = '';
-
+      toast.success('Averymeet is going to join meet in few seconds 🎉');
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
@@ -216,7 +216,6 @@ const sendBotToMeeting = async (meetingUrl) => {
         setError('');
         setSuccessMessage(`Validated for ${platform}. Sending bot to the meeting...`);
         sendBotToMeeting(meetingUrl);
-        toast.success('Averymeet is going to join meet in few seconds 🎉');
         setShow(false);
       } else {
         setError('Please enter a valid meeting URL from Google Meet, Zoom, or Microsoft Teams.');
@@ -238,7 +237,7 @@ const sendBotToMeeting = async (meetingUrl) => {
 const handleLastMeetingFetch = async () => {
   setLoadingSummary(true); // Start showing loader
   try {
-    const response = await axios.post(`https://9d8b-49-43-3-195.ngrok-free.app/last_meeting_summary`, {
+    const response = await axios.post(`https://ea47-49-43-3-195.ngrok-free.app/last_meeting_summary`, {
       user_id: userId  // Send user_id in the request body
     });
     const data = response.data;

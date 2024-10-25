@@ -114,7 +114,7 @@ export default function ComponentTypography() {
         setUploadStatus('Uploading...');
 
         // Make API request to localhost:5000/transcribe
-        const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/transcribe', formData, {
+        const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/transcribe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -151,7 +151,7 @@ export default function ComponentTypography() {
       if (!userId) return; // Exit if userId is not available
       setLoading(true); // Set loading to true before the API call
       try {
-        const response = await axios.post('https://9d8b-49-43-3-195.ngrok-free.app/uploads', {
+        const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/uploads', {
           user_id: userId, // Send user_id in the request body
         });
         console.log(response.data);
@@ -176,7 +176,7 @@ const handleDeleteUpload = async (meetingId) => {
 
     try {
       // Make API request to delete the meeting
-      const response = await axios.delete('https://9d8b-49-43-3-195.ngrok-free.app/delete_upload', {
+      const response = await axios.delete('https://ea47-49-43-3-195.ngrok-free.app/delete_upload', {
         params: { user_id: userId, meeting_id: meetingId },
       });
 
