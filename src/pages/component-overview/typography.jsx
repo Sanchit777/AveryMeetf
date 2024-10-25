@@ -27,6 +27,7 @@ export default function ComponentTypography() {
   const [uploads, setUploads] = useState([]); // State to store uploads data
   const userId = localStorage.getItem("id");
   const [loading, setLoading] = useState(false);
+  const [load, setLoad] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedTranscription, setSelectedTranscription] = useState('');
   const [selectedSummary, setSelectedSummary] = useState('');
@@ -108,13 +109,13 @@ export default function ComponentTypography() {
       formData.append('user_id', userId);
       // Append meeting type to form data
       formData.append('meeting_type', meetingType);
-      setLoading(true)
+      setLoad(true)
       try {
         // Update UI to show uploading status
         setUploadStatus('Uploading...');
 
         // Make API request to localhost:5000/transcribe
-        const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/transcribe', formData, {
+        const response = await axios.post('https://fd3b-49-43-3-195.ngrok-free.app/transcribe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -135,10 +136,10 @@ export default function ComponentTypography() {
         setSelectedSummary(response.data.summary);
 
         setOpen(true);
-        setLoading(false)
+        setLoad(false)
         console.log(response.data)
       } catch (error) {
-        setLoading(false)
+        setLoad(false)
         console.error('Error uploading file:', error);
         setUploadStatus('An error occurred while uploading the file.');
       }
@@ -151,12 +152,13 @@ export default function ComponentTypography() {
       if (!userId) return; // Exit if userId is not available
       setLoading(true); // Set loading to true before the API call
       try {
-        const response = await axios.post('https://ea47-49-43-3-195.ngrok-free.app/uploads', {
+        const response = await axios.post('https://fd3b-49-43-3-195.ngrok-free.app/uploads', {
           user_id: userId, // Send user_id in the request body
         });
         console.log(response.data);
         // Update the uploads state with the response data
         setUploads(response.data);
+        setLoading(false);
       } catch (error) {
         // Improved error logging for clarity
         console.error('Error fetching uploads:', error?.response?.data || error.message || error);
@@ -176,7 +178,7 @@ const handleDeleteUpload = async (meetingId) => {
 
     try {
       // Make API request to delete the meeting
-      const response = await axios.delete('https://ea47-49-43-3-195.ngrok-free.app/delete_upload', {
+      const response = await axios.delete('https://fd3b-49-43-3-195.ngrok-free.app/delete_upload', {
         params: { user_id: userId, meeting_id: meetingId },
       });
 
@@ -230,16 +232,16 @@ const handleDeleteUpload = async (meetingId) => {
                   variant="contained"
                   color="primary"
                   onClick={handleFileUploadClick}
-                  disabled={loading} // Disable button while loading
+                  disabled={load} // Disable button while loading
                   style={{ position: 'relative' }} // Set position relative for loader positioning
                 >
-                  {loading && (
+                  {load && (
                     <CircularProgress
                       size={24}
                       style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
                     />
                   )}
-                  {!loading && 'Upload Meeting'}
+                  {!load && 'Upload Meeting'}
                 </Button>
 
                 
