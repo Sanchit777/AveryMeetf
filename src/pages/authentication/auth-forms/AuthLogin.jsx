@@ -68,7 +68,7 @@ export default function AuthLogin() {
               return;
             }
             const idToken = await user.getIdToken();
-            const response = await axios.post('https://fd3b-49-43-3-195.ngrok-free.app/verify-token', { idToken });
+            const response = await axios.post('https://a58e-49-43-3-229.ngrok-free.app/verify-token', { idToken });
 
             if (response.status === 200) {
               localStorage.setItem('id', user.uid);

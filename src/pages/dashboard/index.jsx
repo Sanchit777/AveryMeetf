@@ -64,7 +64,7 @@ export default function DashboardDefault() {
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://fd3b-49-43-3-195.ngrok-free.app/meetings', null, {
+      const response = await axios.post('https://a58e-49-43-3-229.ngrok-free.app/meetings', null, {
         params: { user_id: userId }, // Pass user_id as a query parameter
       });
       setMeetings(response.data);
@@ -94,7 +94,7 @@ export default function DashboardDefault() {
     setbot_id(bot_id); // Start showing loader
     try {
       // Make POST request to backend
-      const response = await axios.post('https://fd3b-49-43-3-195.ngrok-free.app/meeting_data', {
+      const response = await axios.post('https://a58e-49-43-3-229.ngrok-free.app/meeting_data', {
         bot_id,
         user_id: userId  // Pass user_id in the request body instead of query params
       });
@@ -135,7 +135,7 @@ export default function DashboardDefault() {
 
 
 const sendBotToMeeting = async (meetingUrl) => {
-  const url = "https://fd3b-49-43-3-195.ngrok-free.app/start-meeting-bot"; // Replace with your Python backend URL
+  const url = "https://a58e-49-43-3-229.ngrok-free.app/start-meeting-bot"; // Replace with your Python backend URL
   
   try {
     const response = await fetch(url, {
@@ -237,7 +237,7 @@ const sendBotToMeeting = async (meetingUrl) => {
 const handleLastMeetingFetch = async () => {
   setLoadingSummary(true); // Start showing loader
   try {
-    const response = await axios.post(`https://fd3b-49-43-3-195.ngrok-free.app/last_meeting_summary`, {
+    const response = await axios.post(`https://a58e-49-43-3-229.ngrok-free.app/last_meeting_summary`, {
       user_id: userId  // Send user_id in the request body
     });
     const data = response.data;
